@@ -53,6 +53,7 @@ export class Snake {
 
   crash() {
     console.log('💥 CRASH!');
+    this.scene.saveHighScore();
     this.scene.scene.restart();
   }
 

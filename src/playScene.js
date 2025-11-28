@@ -9,16 +9,28 @@ export class PlayScene extends Phaser.Scene {
   preload() {}
 
   create() {
+    const WIDTH = this.sys.game.config.width;
+    const HEIGHT = this.sys.game.config.height;
+
     this.snake = new Snake(this);
     this.meal = new Meal(this);
 
     this.meal.spawn(this.snake.body);
 
+    this.highScore = this.loadHighScore();
+
+    this.score = 0;
+    this.scoreIncrement = 10;
+
+    this.scoreText = this.add
+      .text(WIDTH - 20, 20, 'Puntaje : 0', { fontSize: '18px', fill: '#FFF' })
+      .setOrigin(1, 0);
+
     this.startText = this.add
       .text(
-        this.sys.game.config.width / 2,
-        this.sys.game.config.height / 2,
-        'Toca la pantalla',
+        WIDTH / 2,
+        HEIGHT / 2,
+        `Toca la pantalla\nMayor puntaje: ${this.highScore}`,
         { fontSize: '18px', fill: '#FFF' }
       )
       .setOrigin(0.5);
@@ -43,6 +55,22 @@ export class PlayScene extends Phaser.Scene {
     });
 
     this.input.on('pointerup', this.handleSwipe, this);
+  }
+
+  loadHighScore() {
+    const score = localStorage.getItem('snakeHighScore');
+    const parseScore = score ? parseInt(score, 10) : 0;
+    return parseScore;
+  }
+  saveHighScore() {
+    if (this.score > this.highScore) {
+      this.highScore = this.score;
+      try {
+        localStorage.setItem('snakeHighScore', this.highScore.toString());
+      } catch (error) {
+        console.error('Error saving high score to localStorage:', error);
+      }
+    }
   }
 
   handleStartGame(pointer) {
@@ -88,6 +116,11 @@ export class PlayScene extends Phaser.Scene {
     }
   }
 
+  updateScore() {
+    this.score += this.scoreIncrement;
+    this.scoreText.setText('Puntaje : ' + this.score);
+  }
+
   update(time, delta) {
     this.snake.update(time);
 
@@ -96,6 +129,7 @@ export class PlayScene extends Phaser.Scene {
       this.snake.body[0].ty === this.meal.item.y
     ) {
       this.snake.grows();
+      this.updateScore();
       this.meal.spawn(this.snake.body);
     }
   }
