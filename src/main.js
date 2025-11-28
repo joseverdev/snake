@@ -13,6 +13,7 @@ const config = {
     default: 'arcade',
     arcade: { gravity: { y: 0 }, debug: false },
   },
+  backgroundColor: '#2b2b2b',
   height: 640,
   scene: [BootLoader, PlayScene],
 };
